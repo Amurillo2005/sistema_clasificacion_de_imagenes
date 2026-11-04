@@ -30,18 +30,15 @@ app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # máx. 10 MB por imagen
 
 # Carga del modelo entrenado y de las clases (una sola vez, al arrancar).
 # Si está disponible el modelo v2 (transferencia de aprendizaje) se usa ese;
-# si no, se usa el modelo v1 (CNN propia, imágenes 32x32).
+
 from modelo_v2 import cargar_modelo_v2  # noqa: E402
 
 modelo = cargar_modelo_v2(RUTA)
 if modelo is not None:
     TAMANO = modelo.input_shape[1]  # tamaño de entrada del modelo (160)
-    ESCALAR = False                 # el v2 normaliza internamente (espera 0-255)
+    ESCALAR = False                 # el modelo normaliza internamente (espera 0-255)
     print(f">> Usando modelo v2 (transferencia de aprendizaje, {TAMANO}x{TAMANO})")
-else:
-    modelo = tf.keras.models.load_model(os.path.join(RUTA, "modelo_cnn.keras"))
-    TAMANO, ESCALAR = 32, True      # el v1 espera valores normalizados 0-1
-    print(">> Usando modelo v1 (CNN propia, 32x32)")
+
 
 with open(os.path.join(RUTA, "clases.json"), encoding="utf-8") as f:
     CLASES = json.load(f)
