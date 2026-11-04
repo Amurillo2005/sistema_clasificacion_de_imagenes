@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clasificador de Imágenes — CNN</title>
+<style>
+  :root {
+    --fondo: #0f172a;
+    --tarjeta: #1e293b;
+    --borde: #334155;
+    --texto: #e2e8f0;
+    --texto-suave: #94a3b8;
+    --acento: #38bdf8;
+    --acento-2: #818cf8;
+    --ok: #34d399;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--fondo);
+    color: var(--texto);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 16px;
+  }
+  header { text-align: center; margin-bottom: 32px; max-width: 640px; }
+  header h1 {
+    font-size: 1.7rem; font-weight: 700;
+    background: linear-gradient(90deg, var(--acento), var(--acento-2));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  header p { color: var(--texto-suave); margin-top: 8px; font-size: .95rem; }
+  header .credito { font-size: .8rem; margin-top: 6px; }
+
+  .contenedor { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 900px; }
+  .panel {
+    background: var(--tarjeta); border: 1px solid var(--borde);
+    border-radius: 16px; padding: 24px; flex: 1 1 380px; max-width: 440px;
+  }
+
+  .zona {
+    border: 2px dashed var(--borde); border-radius: 12px;
+    padding: 36px 20px; text-align: center; cursor: pointer;
+    transition: border-color .2s, background .2s;
+  }
+  .zona:hover, .zona.arrastrando { border-color: var(--acento); background: rgba(56,189,248,.06); }
+  .zona .icono { font-size: 2.4rem; }
+  .zona p { color: var(--texto-suave); margin-top: 10px; font-size: .9rem; }
+  .zona strong { color: var(--acento); }
+  #entrada-archivo { display: none; }
+
+  #vista-previa { display: none; margin-top: 18px; text-align: center; }
+  #vista-previa img {
+    max-width: 100%; max-height: 260px; border-radius: 12px;
+    border: 1px solid var(--borde);
+  }
+  .acciones { margin-top: 16px; display: flex; gap: 10px; justify-content: center; }
+  button {
+    font: inherit; border: none; border-radius: 10px; padding: 10px 22px;
+    cursor: pointer; font-weight: 600;
+  }
+  #btn-clasificar { background: linear-gradient(90deg, var(--acento), var(--acento-2)); color: #0b1220; }
+  #btn-clasificar:disabled { opacity: .5; cursor: wait; }
+  #btn-otra { background: transparent; color: var(--texto-suave); border: 1px solid var(--borde); }
+
+  #resultado { display: none; }
+  .prediccion { text-align: center; padding: 8px 0 20px; }
+  .prediccion .etiqueta { font-size: 2rem; font-weight: 700; color: var(--ok); text-transform: capitalize; }
+  .prediccion .confianza { color: var(--texto-suave); margin-top: 4px; font-size: .95rem; }
+
+  .barra-item { margin-bottom: 12px; }
+  .barra-item .fila { display: flex; justify-content: space-between; font-size: .85rem; margin-bottom: 4px; }
+  .barra-item .fila .nombre { text-transform: capitalize; }
+  .barra-item .fila .pct { color: var(--texto-suave); font-variant-numeric: tabular-nums; }
+  .barra { height: 8px; background: #0b1220; border-radius: 6px; overflow: hidden; }
+  .barra > div {
+    height: 100%; width: 0;
+    background: linear-gradient(90deg, var(--acento), var(--acento-2));
+    border-radius: 6px; transition: width .6s ease;
+  }
+  .titulo-seccion { font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--texto-suave); margin-bottom: 14px; }
+  #cargando { display: none; text-align: center; color: var(--texto-suave); padding: 30px 0; }
+  .spinner {
+    width: 34px; height: 34px; margin: 0 auto 12px;
+    border: 3px solid var(--borde); border-top-color: var(--acento);
+    border-radius: 50%; animation: girar .8s linear infinite;
+  }
+  @keyframes girar { to { transform: rotate(360deg); } }
+  #error { display: none; color: #f87171; text-align: center; margin-top: 14px; font-size: .9rem; }
+  .clases-chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 14px; }
+  .chip {
+    font-size: .75rem; color: var(--texto-suave);
+    border: 1px solid var(--borde); border-radius: 999px; padding: 3px 10px;
+  }
+  footer { margin-top: 32px; color: var(--texto-suave); font-size: .78rem; text-align: center; max-width: 640px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Sistema de clasificación de imágenes con CNN</h1>
+  <p>Sube una imagen y la red neuronal convolucional la clasificará en tiempo real en una de 10 categorías.</p>
+  <p class="credito">Proyecto de grado — Andrés Caleb Murillo Cervantes &amp; Jesús Alberto Reales Ortiz · Universidad Libre, Barranquilla</p>
+  <div class="clases-chips">
+    <span class="chip">avión</span><span class="chip">automóvil</span><span class="chip">pájaro</span>
+    <span class="chip">gato</span><span class="chip">ciervo</span><span class="chip">perro</span>
+    <span class="chip">rana</span><span class="chip">caballo</span><span class="chip">barco</span>
+    <span class="chip">camión</span>
+  </div>
+</header>
+
+<div class="contenedor">
+  <div class="panel">
+    <div class="titulo-seccion">1 · Imagen de entrada</div>
+    <div class="zona" id="zona">
+      <div class="icono">📷</div>
+      <p><strong>Haz clic</strong> o arrastra una imagen aquí<br>(JPG, PNG, WebP…)</p>
+    </div>
+    <input type="file" id="entrada-archivo" accept="image/*">
+    <div id="vista-previa">
+      <img id="img-previa" alt="Vista previa">
+      <div class="acciones">
+        <button id="btn-clasificar">Clasificar imagen</button>
+        <button id="btn-otra">Elegir otra</button>
+      </div>
+    </div>
+    <div id="error"></div>
+  </div>
+
+  <div class="panel">
+    <div class="titulo-seccion">2 · Resultado de la clasificación</div>
+    <div id="cargando">
+      <div class="spinner"></div>
+      La red neuronal está analizando la imagen…
+    </div>
+    <div id="resultado">
+      <div class="prediccion">
+        <div class="etiqueta" id="clase-predicha">—</div>
+        <div class="confianza" id="confianza"></div>
+      </div>
+      <div class="titulo-seccion">Probabilidades (top 5)</div>
+      <div id="barras"></div>
+    </div>
+    <p id="sin-resultado" style="color:var(--texto-suave); text-align:center; padding:30px 0;">
+      Aún no hay resultados. Sube una imagen y pulsa «Clasificar imagen».
+    </p>
+  </div>
+</div>
+
+<footer>
+  El modelo es una red neuronal convolucional entrenada con el dataset CIFAR-10 (60.000 imágenes)
+  mediante transferencia de aprendizaje sobre ResNet50V2 (preentrenada con ImageNet).
+  La imagen que subas se redimensiona y se normaliza antes de pasar por la red,
+  tal como se describe en el documento del proyecto.
+</footer>
+
+<script>
+  const zona = document.getElementById('zona');
+  const entrada = document.getElementById('entrada-archivo');
+  const vista = document.getElementById('vista-previa');
+  const imgPrevia = document.getElementById('img-previa');
+  const btnClasificar = document.getElementById('btn-clasificar');
+  const btnOtra = document.getElementById('btn-otra');
+  const cargando = document.getElementById('cargando');
+  const resultado = document.getElementById('resultado');
+  const sinResultado = document.getElementById('sin-resultado');
+  const errorBox = document.getElementById('error');
+  let archivoActual = null;
+
+  zona.addEventListener('click', () => entrada.click());
+  ['dragover', 'dragenter'].forEach(ev =>
+    zona.addEventListener(ev, e => { e.preventDefault(); zona.classList.add('arrastrando'); }));
+  ['dragleave', 'drop'].forEach(ev =>
+    zona.addEventListener(ev, e => { e.preventDefault(); zona.classList.remove('arrastrando'); }));
+  zona.addEventListener('drop', e => {
+    if (e.dataTransfer.files.length) usarArchivo(e.dataTransfer.files[0]);
+  });
+  entrada.addEventListener('change', () => {
+    if (entrada.files.length) usarArchivo(entrada.files[0]);
+  });
+
+  function usarArchivo(archivo) {
+    if (!archivo.type.startsWith('image/')) { mostrarError('El archivo debe ser una imagen.'); return; }
+    archivoActual = archivo;
+    errorBox.style.display = 'none';
+    const lector = new FileReader();
+    lector.onload = e => {
+      imgPrevia.src = e.target.result;
+      zona.style.display = 'none';
+      vista.style.display = 'block';
+    };
+    lector.readAsDataURL(archivo);
+  }
+
+  btnOtra.addEventListener('click', () => {
+    archivoActual = null;
+    entrada.value = '';
+    vista.style.display = 'none';
+    zona.style.display = 'block';
+  });
+
+  btnClasificar.addEventListener('click', async () => {
+    if (!archivoActual) return;
+    btnClasificar.disabled = true;
+    resultado.style.display = 'none';
+    sinResultado.style.display = 'none';
+    errorBox.style.display = 'none';
+    cargando.style.display = 'block';
+
+    const datos = new FormData();
+    datos.append('imagen', archivoActual);
+
+    try {
+      const r = await fetch('/predecir', { method: 'POST', body: datos });
+      const json = await r.json();
+      if (!r.ok) throw new Error(json.error || 'Error del servidor');
+      mostrarResultado(json);
+    } catch (err) {
+      mostrarError(err.message);
+      sinResultado.style.display = 'block';
+    } finally {
+      cargando.style.display = 'none';
+      btnClasificar.disabled = false;
+    }
+  });
+
+  function mostrarResultado(datos) {
+    document.getElementById('clase-predicha').textContent = datos.clase;
+    document.getElementById('confianza').textContent =
+      'Confianza: ' + datos.confianza.toFixed(1) + ' %';
+    const barras = document.getElementById('barras');
+    barras.innerHTML = '';
+    datos.top.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'barra-item';
+      div.innerHTML =
+        '<div class="fila"><span class="nombre">' + item.clase + '</span>' +
+        '<span class="pct">' + item.probabilidad.toFixed(1) + ' %</span></div>' +
+        '<div class="barra"><div></div></div>';
+      barras.appendChild(div);
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() =>
+          div.querySelector('.barra > div').style.width = item.probabilidad + '%'));
+    });
+    resultado.style.display = 'block';
+  }
+
+  function mostrarError(msj) {
+    errorBox.textContent = msj;
+    errorBox.style.display = 'block';
+  }
+</script>
+</body>
+</html>
