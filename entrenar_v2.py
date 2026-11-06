@@ -192,6 +192,45 @@ modelo.compile(
 
 modelo.save("modelo_cnn_v2.keras")
 
+
+# ---------------------------------------------------------------
+# 7. Conteo de parámetros del modelo completo
+# ---------------------------------------------------------------
+
+parametros_entrenables = sum(
+    np.prod(variable.shape)
+    for variable in modelo.trainable_weights
+)
+
+parametros_no_entrenables = sum(
+    np.prod(variable.shape)
+    for variable in modelo.non_trainable_weights
+)
+
+parametros_totales = modelo.count_params()
+
+print("\n===== PARÁMETROS DEL MODELO V2 =====")
+print(f"Parámetros entrenables: {parametros_entrenables:,}")
+print(f"Parámetros no entrenables: {parametros_no_entrenables:,}")
+print(f"Parámetros totales: {parametros_totales:,}")
+
+# Guardar los parámetros en formato JSON
+parametros = {
+    "parametros_entrenables": int(parametros_entrenables),
+    "parametros_no_entrenables": int(parametros_no_entrenables),
+    "parametros_totales": int(parametros_totales)
+}
+
+with open("parametros_modelo_v2.json", "w", encoding="utf-8") as archivo:
+    import json
+    json.dump(
+        parametros,
+        archivo,
+        indent=4,
+        ensure_ascii=False
+    )
+
+print("\nParámetros guardados en parametros_modelo_v2.json")
 print("\nEntrenamiento finalizado.")
 print("Se guardaron cabeza_v2.keras y modelo_cnn_v2.keras.")
 print("El conjunto oficial de prueba no se utilizó durante el entrenamiento.")

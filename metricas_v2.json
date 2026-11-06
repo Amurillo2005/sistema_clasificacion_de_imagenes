@@ -1,0 +1,7 @@
+{
+    "cantidad_imagenes_prueba": 10000,
+    "exactitud": 0.8848,
+    "precision_macro": 0.8855,
+    "recall_macro": 0.8848,
+    "f1_macro": 0.8848
+}
