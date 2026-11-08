@@ -134,6 +134,13 @@ with open(
 
 mc = confusion_matrix(yte, pred)
 
+# Matriz de confusión normalizada (porcentajes)
+mc_normalizada = confusion_matrix(
+    yte,
+    pred,
+    normalize="true"
+)
+
 # Guardar matriz en CSV con nombres de categorías
 with open(
     "matriz_confusion_v2.csv",
@@ -148,10 +155,25 @@ with open(
     for nombre, fila in zip(CLASES, mc):
         escritor.writerow([nombre] + fila.tolist())
 
+# Guardar matriz normalizada en CSV
+with open(
+    "matriz_confusion_normalizada_v2.csv",
+    "w",
+    newline="",
+    encoding="utf-8-sig"
+) as archivo:
+    escritor = csv.writer(archivo)
+
+    escritor.writerow(["Clase real / Clase predicha"] + CLASES)
+
+    for nombre, fila in zip(CLASES, mc_normalizada):
+        escritor.writerow([nombre] + fila.tolist())
 
 # ---------------------------------------------------------------
-# 6. Visualizar y guardar matriz de confusión
+# 6. Visualizar y guardar matrices de confusión
 # ---------------------------------------------------------------
+
+# 6.1 Matriz de confusión original
 
 fig, eje = plt.subplots(figsize=(8, 7), dpi=150)
 
@@ -165,10 +187,7 @@ eje.set_yticklabels(CLASES)
 
 eje.set_xlabel("Clase predicha")
 eje.set_ylabel("Clase real")
-
-eje.set_title(
-    "Matriz de confusión - ResNet50V2"
-)
+eje.set_title("Matriz de confusión - ResNet50V2")
 
 umbral = mc.max() / 2
 
@@ -195,6 +214,58 @@ fig.savefig(
 plt.close(fig)
 
 
+# 6.2 Matriz de confusión normalizada
+
+fig, eje = plt.subplots(figsize=(8, 7), dpi=150)
+
+im = eje.imshow(
+    mc_normalizada,
+    cmap="Blues",
+    vmin=0,
+    vmax=1
+)
+
+eje.set_xticks(range(len(CLASES)))
+eje.set_xticklabels(CLASES, rotation=45, ha="right")
+
+eje.set_yticks(range(len(CLASES)))
+eje.set_yticklabels(CLASES)
+
+eje.set_xlabel("Clase predicha")
+eje.set_ylabel("Clase real")
+eje.set_title("Matriz de confusión normalizada - ResNet50V2")
+
+umbral = 0.5
+
+for i in range(len(CLASES)):
+    for j in range(len(CLASES)):
+        eje.text(
+            j,
+            i,
+            f"{mc_normalizada[i, j]:.1%}",
+            ha="center",
+            va="center",
+            fontsize=7,
+            color="white" if mc_normalizada[i, j] > umbral else "#334155"
+        )
+
+fig.colorbar(
+    im,
+    ax=eje,
+    shrink=0.8,
+    format="%.0f%%"
+)
+
+fig.tight_layout()
+
+fig.savefig(
+    "matriz_confusion_normalizada_v2.png",
+    bbox_inches="tight"
+)
+
+plt.close(fig)
+
+
 # ---------------------------------------------------------------
 # 7. Confirmar archivos generados
 # ---------------------------------------------------------------
@@ -205,3 +276,5 @@ print("- metricas.json")
 print("- reporte_clasificacion.txt")
 print("- matriz_confusion_v2.csv")
 print("- matriz_confusion_v2.png")
+print("- matriz_confusion_normalizada_v2.csv")
+print("- matriz_confusion_normalizada_v2.png")
