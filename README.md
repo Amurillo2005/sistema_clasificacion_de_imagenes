@@ -28,7 +28,7 @@ la predicción en tiempo real.
 2. Instala las dependencias (solo la primera vez):
 
    ```bash
-   pip install tensorflow-cpu flask pillow numpy pandas matplotlib
+   pip install -r requirements.txt
    ```
 
    > En Windows usa `pip` o `py -m pip`. Si `tensorflow-cpu` falla,
@@ -57,8 +57,8 @@ Para detener el servidor: `Ctrl + C` en la terminal.
 | `cabeza_v2.keras` | Cabeza clasificadora del modelo v2 ya **entrenada** — la que usa la app |
 | `modelo_v2.py` | Arma el modelo v2 (descarga la base ResNet50V2 la primera vez) |
 | `clases.json` | Nombres de las 10 categorías |
-| `entrenar_v2.py` | Scripts con los que se entrenó el modelo |
-| `evaluar_v2.py` | Scripts de evaluación: métricas y matriz de confusión |
+| `entrenar_v2.py` | Scripts con los que se entrenó el modelo V2 |
+| `evaluar_v2.py` | Script de evaluación para el modelo V2: métricas y matriz de confusión |
 | `metricas.json` | Métrica del modelo en el conjunto de prueba |
 | `historial_v2.csv` | Exactitud y pérdida de cada época |
 | `generar_entrenamiento.py` | Genera las gráficas de exactitud y pérdida por época |
