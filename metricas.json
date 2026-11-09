@@ -1,7 +1,9 @@
 {
-    "cantidad_imagenes_prueba": 10000,
-    "exactitud": 0.8848,
-    "precision_macro": 0.8855,
-    "recall_macro": 0.8848,
-    "f1_macro": 0.8848
+  "exactitud": 0.8752,
+  "precision_macro": 0.8755,
+  "recall_macro": 0.8752,
+  "f1_macro": 0.8751,
+  "parametros_entrenables": 815530,
+  "parametros_no_entrenables": 1408,
+  "parametros_totales": 816938
 }
