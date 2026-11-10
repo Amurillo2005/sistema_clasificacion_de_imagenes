@@ -222,7 +222,7 @@ im = eje.imshow(
     mc_normalizada,
     cmap="Blues",
     vmin=0,
-    vmax=1
+    vmax=100
 )
 
 eje.set_xticks(range(len(CLASES)))

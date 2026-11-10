@@ -6,7 +6,7 @@ Entrenamiento del modelo CNN V1 para clasificación de imágenes CIFAR-10.
 
 Proyecto de grado:
 Desarrollo de un sistema de clasificación de imágenes mediante
-una red neuronal convolucional y despliegue en una aplicación web.
+una red neuronal convolucional e integración en una aplicación web.
 
 Protocolo experimental:
 - 40.000 imágenes para entrenamiento.

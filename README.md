@@ -1,7 +1,7 @@
 # Sistema de clasificación de imágenes con CNN y aplicación web
 
 Implementación del proyecto de grado **"Desarrollo de un sistema de clasificación
-de imágenes mediante una red neuronal convolucional y despliegue en una
+de imágenes mediante una red neuronal convolucional e integración en una
 aplicación web"** — Andrés Caleb Murillo Cervantes y Jesús Alberto Reales Ortiz,
 Universidad Libre, seccional Barranquilla.
 
@@ -9,16 +9,14 @@ El sistema clasifica imágenes en **10 categorías** (avión, automóvil, pájar
 gato, ciervo, perro, rana, caballo, barco y camión) usando una red neuronal
 convolucional (CNN) entrenada con el dataset **CIFAR-10** (60.000 imágenes),
 integrada a una aplicación web local donde el usuario sube una imagen y recibe
-la predicción en tiempo real.
+la predicción.
 
 
-> **Importante:** la primera vez que arranques la app necesitas internet:
-> descargará automáticamente la base preentrenada ResNet50V2 (90 MB) desde
-> el repositorio oficial de Keras en GitHub. Después ya funciona sin conexión.
+
 
 ## Requisitos
 
-- Python 3.10 o superior (probado con 3.11)
+- Python 3.13.5
 - Conexión a internet solo para instalar las librerías la primera vez
 
 ## Cómo ejecutar la aplicación web (paso a paso)

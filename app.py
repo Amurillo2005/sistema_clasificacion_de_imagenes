@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 Aplicación web (Flask) que sirve el modelo CNN entrenado para
-clasificación de imágenes en tiempo real.
+clasificación de imágenes.
 
 Proyecto de grado: "Desarrollo de un sistema de clasificación de imágenes
-mediante una red neuronal convolucional y despliegue en una aplicación web"
+mediante una red neuronal convolucional e integración en una aplicación web"
 Andrés Caleb Murillo Cervantes - Jesús Alberto Reales Ortiz
 Universidad Libre, seccional Barranquilla
 
@@ -19,6 +19,7 @@ import os
 import numpy as np
 from flask import Flask, jsonify, render_template, request
 from PIL import Image
+from werkzeug.exceptions import RequestEntityTooLarge
 
 os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
 import tensorflow as tf  # noqa: E402
@@ -27,6 +28,11 @@ RUTA = os.path.dirname(os.path.abspath(__file__))
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # máx. 10 MB por imagen
+@app.errorhandler(RequestEntityTooLarge)
+def manejar_archivo_demasiado_grande(error):
+    return jsonify({
+        "error": "La imagen supera el tamaño máximo permitido de 10 MB."
+    }), 413
 
 # Carga del modelo entrenado y de las clases (una sola vez, al arrancar).
 # Si está disponible el modelo v2 (transferencia de aprendizaje) se usa ese;
@@ -95,4 +101,4 @@ def predecir():
 if __name__ == "__main__":
     print("\n  Sistema de clasificación de imágenes con CNN")
     print("  Abre en tu navegador:  http://localhost:5000\n")
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    app.run(host="127.0.0.1", port=5000, debug=False)

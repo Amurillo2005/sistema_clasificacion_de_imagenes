@@ -102,7 +102,7 @@
 
 <header>
   <h1>Sistema de clasificación de imágenes con CNN</h1>
-  <p>Sube una imagen y la red neuronal convolucional la clasificará en tiempo real en una de 10 categorías.</p>
+  <p>Sube una imagen y la red neuronal convolucional la clasificará en una de 10 categorías.</p>
   <p class="credito">Proyecto de grado — Andrés Caleb Murillo Cervantes &amp; Jesús Alberto Reales Ortiz · Universidad Libre, Barranquilla</p>
   <div class="clases-chips">
     <span class="chip">avión</span><span class="chip">automóvil</span><span class="chip">pájaro</span>
@@ -155,6 +155,8 @@
   mediante transferencia de aprendizaje sobre ResNet50V2 (preentrenada con ImageNet).
   La imagen que subas se redimensiona y se normaliza antes de pasar por la red,
   tal como se describe en el documento del proyecto.
+
+  Privacidad: La imagen seleccionada se procesa en memoria para realizar la clasificación y no se almacena en el servidor.
 </footer>
 
 <script>
