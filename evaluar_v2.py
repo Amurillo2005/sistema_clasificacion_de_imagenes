@@ -17,6 +17,7 @@ from sklearn.metrics import (
     precision_score,
     recall_score
 )
+from matplotlib.ticker import PercentFormatter
 
 import matplotlib
 matplotlib.use("Agg")
@@ -214,6 +215,7 @@ fig.savefig(
 plt.close(fig)
 
 
+
 # 6.2 Matriz de confusión normalizada
 
 fig, eje = plt.subplots(figsize=(8, 7), dpi=150)
@@ -222,7 +224,7 @@ im = eje.imshow(
     mc_normalizada,
     cmap="Blues",
     vmin=0,
-    vmax=100
+    vmax=1
 )
 
 eje.set_xticks(range(len(CLASES)))
@@ -239,21 +241,23 @@ umbral = 0.5
 
 for i in range(len(CLASES)):
     for j in range(len(CLASES)):
+        valor = mc_normalizada[i, j]
+
         eje.text(
             j,
             i,
-            f"{mc_normalizada[i, j]:.1%}",
+            f"{valor:.1%}",
             ha="center",
             va="center",
             fontsize=7,
-            color="white" if mc_normalizada[i, j] > umbral else "#334155"
+            color="white" if valor > umbral else "#334155"
         )
 
 fig.colorbar(
     im,
     ax=eje,
     shrink=0.8,
-    format="%.0f%%"
+    format=PercentFormatter(xmax=1)
 )
 
 fig.tight_layout()
